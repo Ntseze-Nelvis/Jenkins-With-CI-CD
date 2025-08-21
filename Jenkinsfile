@@ -6,7 +6,7 @@ pipeline {
     }  
 
     environment {        
-        SONARSERVER = 'sonarserver'
+        SONARSERVER = 'sonarserver' # system
         SONARSCANNER = 'sonarscanner'
         IMAGE_NAME = 'nelvis1/cloudreality-image'
         IMAGE_TAG  = 'latest'
