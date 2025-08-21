@@ -8,12 +8,12 @@ pipeline {
     environment {        
         SONARSERVER = 'sonarserver'
         SONARSCANNER = 'sonarscanner'
-        IMAGE_NAME = 'ndzenyuy/ecommerce-app'
+        IMAGE_NAME = 'nelvis1/cloudreality-image'
         IMAGE_TAG  = 'latest'
         TASK_DEF_ARN = 'arn:aws:ecs:us-east-1:997450571655:task-definition/jenkins-cicd-task'
-        SONAR_PROJECTKEY= 'jenkins-cicd1_project'
-        SONAR_PROJECTNAME= 'project'
-        SONAR_ORG= 'jenkins-cicd1'
+        SONAR_PROJECTKEY= 'jenkins-cicd-project'
+        SONAR_PROJECTNAME= 'jenkins-cicd-project'
+        SONAR_ORG= 'jenkins-cicd'
         ECS_CLUSTER = 'jenkins-cicd-cluster'
         ECS_SERVICE = 'jenkins-cicd-service'
     }
@@ -51,10 +51,10 @@ pipeline {
             }
             steps {
                withSonarQubeEnv("${SONARSERVER}") {
-                   sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey="$SONAR_PROJECTKEY" \
-                   -Dsonar.projectName="$SONAR_PROJECTNAME" \
+                   sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey="$jenkins-cicd-project" \
+                   -Dsonar.projectName="$jenkins-cicd-project" \
                    -Dsonar.projectVersion=1.0 \
-                   -Dsonar.organization="$SONAR_ORG" \
+                   -Dsonar.organization="$jenkins-cicd" \
                    -Dsonar.sources=src/ \
                    -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/ \
                    -Dsonar.junit.reportsPath=target/surefire-reports/ \
@@ -175,7 +175,7 @@ pipeline {
 
         success {
             emailext(
-                to: 'ndzenyuyjones@gmail.com',
+                to: 'ntsezevouffonelvis@gmail.com',
                 subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
                 body: """<p>Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' succeeded.</p>
                         <p>Check console output at <a href='${env.BUILD_URL}'>${env.BUILD_URL}</a></p>""",
@@ -185,7 +185,7 @@ pipeline {
 
         failure {
             emailext(
-                to: 'ndzenyuyjones@gmail.com',
+                to: 'ntsezevouffonelvis@gmail.com',
                 subject: "FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
                 body: """<p>Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' failed.</p>
                         <p>Check console output at <a href='${env.BUILD_URL}'>${env.BUILD_URL}</a></p>""",
