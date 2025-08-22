@@ -49,21 +49,24 @@ pipeline {
             environment {
                 scannerHome = tool "${SONARSCANNER}"
             }
-            steps {
-               withSonarQubeEnv("${SONARSERVER}") {
-                   sh """
-                   ${scannerHome}/bin/sonar-scanner -Dsonar.projectKey="$jenkinscicdproject" \
-                   -Dsonar.projectName="$jenkinscicdproject" \ 
-                   -Dsonar.projectVersion=1.0 \
-                   -Dsonar.organization="$jenkinscicd" \
-                   -Dsonar.sources=src/ \
-                   -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/ \
-                   -Dsonar.junit.reportsPath=target/surefire-reports/ \
-                   -Dsonar.jacoco.reportsPath=target/jacoco.exec \
-                   -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml
-                   """
-              }
             }
+steps {
+    withSonarQubeEnv("${SONARSERVER}") {
+        sh """
+            ${scannerHome}/bin/sonar-scanner \
+              -Dsonar.projectKey=${jenkinscicdproject} \
+              -Dsonar.projectName=${jenkinscicdproject} \
+              -Dsonar.projectVersion=1.0 \
+              -Dsonar.organization=${jenkinscicd} \
+              -Dsonar.sources=src/ \
+              -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/ \
+              -Dsonar.junit.reportsPath=target/surefire-reports/ \
+              -Dsonar.jacoco.reportsPath=target/jacoco.exec \
+              -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml
+        """
+    }
+}
+
         }
         stage('OWASP Dependency Check') {
             steps {
