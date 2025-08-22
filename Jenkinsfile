@@ -9,7 +9,7 @@ pipeline {
         SONARSERVER = 'sonarserver' // system
         SONARSCANNER = 'sonarscanner' // scanner name
         IMAGE_NAME = 'nelvis1/cloudreality-image' // image name
-        IMAGE_TAG  = 'latest'
+        IMAGE_TAG  = 'latest' // tag
         TASK_DEF_ARN = 'arn:aws:ecs:us-east-1:997450571655:task-definition/jenkins-cicd-task'
         SONAR_PROJECTKEY= 'jenkins-cicd-project'
         SONAR_PROJECTNAME= 'jenkins-cicd-project'
@@ -52,7 +52,7 @@ pipeline {
             steps {
                withSonarQubeEnv("${SONARSERVER}") {
                    sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey="$jenkinscicdproject" \
-                   -Dsonar.projectName="$jenkinscicdproject" \
+                   -Dsonar.projectName="$jenkinscicdproject" \ 
                    -Dsonar.projectVersion=1.0 \
                    -Dsonar.organization="$jenkinscicd" \
                    -Dsonar.sources=src/ \
@@ -167,7 +167,7 @@ pipeline {
     post {
         always {
             slackSend(
-                channel: '#jenkinscicd',
+                channel: '#all-cloudreality',
                 color: currentBuild.currentResult == 'SUCCESS' ? 'good' : 'danger',
                 message: "The recently built Pipeline *${env.JOB_NAME}* #${env.BUILD_NUMBER} finished with status: *${currentBuild.currentResult}*\n${env.BUILD_URL}"
             )
