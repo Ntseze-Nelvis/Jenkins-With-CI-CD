@@ -13,7 +13,7 @@ pipeline {
         TASK_DEF_ARN = 'arn:aws:ecs:us-east-1:997450571655:task-definition/jenkins-cicd-task'
         SONAR_PROJECTKEY= 'jenkins-cicd-project'
         SONAR_PROJECTNAME= 'jenkins-cicd-project'
-        SONAR_ORG= 'jenkins-cicd'
+        SONAR_ORG= 'jenkinscicd'
         ECS_CLUSTER = 'jenkins-cicd-cluster'
         ECS_SERVICE = 'jenkins-cicd-service'
     }
@@ -51,10 +51,10 @@ pipeline {
             }
             steps {
                withSonarQubeEnv("${SONARSERVER}") {
-                   sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey="$jenkins-cicd-project" \
-                   -Dsonar.projectName="$jenkins-cicd-project" \
+                   sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey="$jenkinscicdproject" \
+                   -Dsonar.projectName="$jenkinscicdproject" \
                    -Dsonar.projectVersion=1.0 \
-                   -Dsonar.organization="$jenkins-cicd" \
+                   -Dsonar.organization="$jenkinscicd" \
                    -Dsonar.sources=src/ \
                    -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/ \
                    -Dsonar.junit.reportsPath=target/surefire-reports/ \
