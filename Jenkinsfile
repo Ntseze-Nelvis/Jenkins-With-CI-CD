@@ -59,7 +59,7 @@ pipeline {
         stage('OWASP Dependency Check') {
             steps {
                 sh '''
-                sudo apt-get update && sudo apt-get install -y unzip
+                sudo apt-get update && sudo apt-get install -y unzip jq
                 curl -L -o dependency-check.zip https://github.com/jeremylong/DependencyCheck/releases/download/v8.4.0/dependency-check-8.4.0-release.zip
                 unzip -o -q dependency-check.zip -d dependency-check-dir
                 chmod +x dependency-check-dir/dependency-check/bin/dependency-check.sh
@@ -120,13 +120,26 @@ pipeline {
         stage('Update ECS Task Definition') {
             steps {
                 script {
-                    sh '''aws ecs describe-task-definition --task-definition "$TASK_DEF_ARN" --query 'taskDefinition.{family: family, taskRoleArn: taskRoleArn, executionRoleArn: executionRoleArn, networkMode: networkMode, containerDefinitions: containerDefinitions, volumes: volumes, placementConstraints: placementConstraints, requiresCompatibilities: requiresCompatibilities, cpu: cpu, memory: memory}' --output json > task-def.json'''
-                    
-                    def taskDefinition = readFile('task-def.json')
-                    def newTaskDefinition = taskDefinition.replaceAll(/"image":\\s*".*?"/, '"image": "' + IMAGE_NAME + ':' + IMAGE_TAG + '"')
-                    writeFile file: 'new-task-definition.json', text: newTaskDefinition                 
+                    sh '''
+                    # Export current task definition
+                    aws ecs describe-task-definition \
+                      --task-definition "$TASK_DEF_ARN" \
+                      --query 'taskDefinition' \
+                      --output json > task-def.json
 
-                    sh 'aws ecs register-task-definition --cli-input-json file://new-task-definition.json'
+                    # Clean AWS-managed fields
+                    cat task-def.json | \
+                      jq 'del(.status, .revision, .taskDefinitionArn, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' \
+                      > clean-task-def.json
+
+                    # Replace container image
+                    cat clean-task-def.json | \
+                      jq --arg IMAGE "$IMAGE_NAME:$IMAGE_TAG" '.containerDefinitions[0].image=$IMAGE' \
+                      > new-task-definition.json
+
+                    # Register new task definition
+                    aws ecs register-task-definition --cli-input-json file://new-task-definition.json
+                    '''
                 }
             }
         }
