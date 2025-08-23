@@ -7,7 +7,6 @@ pipeline {
 
     environment {        
         SONARSERVER      = 'sonarserver' 
-        SONARSCANNER     = 'sonarscanner'
         IMAGE_NAME       = 'nelvis1/cloudreality-image'
         IMAGE_TAG        = 'latest' 
         TASK_DEF_ARN     = 'arn:aws:ecs:us-east-1:997450571655:task-definition/jenkins-cicd-task'
@@ -43,21 +42,15 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
+        stage('SonarCloud Analysis') {
             steps {
-                withSonarQubeEnv("${SONARSERVER}") {
-                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                        sh '''${scannerHome}/bin/sonar-scanner \
+                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                    withSonarQubeEnv('sonarserver') {
+                        sh 'mvn verify sonar:sonar \
                             -Dsonar.projectKey=$SONAR_PROJECTKEY \
-                            -Dsonar.projectName=$SONAR_PROJECTNAME \
-                            -Dsonar.projectVersion=1.0 \
                             -Dsonar.organization=$SONAR_ORG \
-                            -Dsonar.login=$SONAR_TOKEN \
-                            -Dsonar.sources=src/ \
-                            -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/ \
-                            -Dsonar.junit.reportsPath=target/surefire-reports/ \
-                            -Dsonar.jacoco.reportsPath=target/jacoco.exec \
-                            -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml'''
+                            -Dsonar.host.url=https://sonarcloud.io \
+                            -Dsonar.login=$SONAR_TOKEN'
                     }
                 }
             }
@@ -66,27 +59,16 @@ pipeline {
         stage('OWASP Dependency Check') {
             steps {
                 sh '''
-                echo "Installing unzip..."
                 sudo apt-get update && sudo apt-get install -y unzip
-
-                echo "Downloading OWASP Dependency-Check CLI..."
                 curl -L -o dependency-check.zip https://github.com/jeremylong/DependencyCheck/releases/download/v8.4.0/dependency-check-8.4.0-release.zip
-
-                echo "Unzipping..."
                 unzip -o -q dependency-check.zip -d dependency-check-dir
-
-                echo "Setting executable permission..."
                 chmod +x dependency-check-dir/dependency-check/bin/dependency-check.sh
-
-                echo "Running OWASP Dependency-Check..."
                 ./dependency-check-dir/dependency-check/bin/dependency-check.sh \
                     --project "MyProject" \
                     --scan . \
                     --format HTML \
                     --out owasp-report \
                     --failOnCVSS 7 || true
-
-                echo "OWASP scan complete, reports in owasp-report/"
                 '''
             }
         }
@@ -142,7 +124,6 @@ pipeline {
                     
                     def taskDefinition = readFile('task-def.json')
                     def newTaskDefinition = taskDefinition.replaceAll(/"image":\\s*".*?"/, '"image": "' + IMAGE_NAME + ':' + IMAGE_TAG + '"')
-
                     writeFile file: 'new-task-definition.json', text: newTaskDefinition                 
 
                     sh 'aws ecs register-task-definition --cli-input-json file://new-task-definition.json'
