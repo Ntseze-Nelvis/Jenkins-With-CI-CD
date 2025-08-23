@@ -9,11 +9,11 @@ pipeline {
         SONARSERVER      = 'sonarserver' //sonarserver
         IMAGE_NAME       = 'nelvis1/cloudreality-image'
         IMAGE_TAG        = 'latest' 
-        TASK_DEF_ARN     = 'arn:aws:ecs:us-east-1:997450571655:task-definition/jenkins-cicd-task'
+        TASK_DEF_ARN     = 'arn:aws:ecs:us-east-1:588738581081:task-definition/jenkins-task:1'
         SONAR_PROJECTKEY = 'jenkinscicdproject' 
         SONAR_PROJECTNAME= 'jenkinscicdproject'
         SONAR_ORG        = 'jenkinscicd'
-        ECS_CLUSTER      = 'jenkins-cicd-cluster'
+        ECS_CLUSTER      = 'ecs-cluster'
         ECS_SERVICE      = 'jenkins-cicd-service'
     }
  
