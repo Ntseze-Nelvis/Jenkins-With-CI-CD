@@ -43,25 +43,23 @@ pipeline {
             }
         }
 
-        stage('Sonar Analysis') {
-            environment {
-                scannerHome = tool "${SONARSCANNER}"
-            }
-            steps {
-                withSonarQubeEnv("${SONARSERVER}") {
-                    sh '''${scannerHome}/bin/sonar-scanner \
-                        -Dsonar.projectKey=$SONAR_PROJECTKEY \
-                        -Dsonar.projectName=$SONAR_PROJECTNAME \
-                        -Dsonar.projectVersion=1.0 \
-                        -Dsonar.organization=$SONAR_ORG \
-                        -Dsonar.sources=src/ \
-                        -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/ \
-                        -Dsonar.junit.reportsPath=target/surefire-reports/ \
-                        -Dsonar.jacoco.reportsPath=target/jacoco.exec \
-                        -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml'''
-                }
-            }
+        steps {
+    withSonarQubeEnv("${SONARSERVER}") {
+        withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+            sh '''${scannerHome}/bin/sonar-scanner \
+                -Dsonar.projectKey=$SONAR_PROJECTKEY \
+                -Dsonar.projectName=$SONAR_PROJECTNAME \
+                -Dsonar.projectVersion=1.0 \
+                -Dsonar.organization=$SONAR_ORG \
+                -Dsonar.login=$SONAR_TOKEN \
+                -Dsonar.sources=src/ \
+                -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/ \
+                -Dsonar.junit.reportsPath=target/surefire-reports/ \
+                -Dsonar.jacoco.reportsPath=target/jacoco.exec \
+                -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml'''
         }
+    }
+}
 
         stage('OWASP Dependency Check') {
             steps {
