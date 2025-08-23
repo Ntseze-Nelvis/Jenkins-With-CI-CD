@@ -7,7 +7,7 @@ pipeline {
 
     environment {        
         SONARSERVER      = 'sonarserver' 
-        SONARSCANNER     = 'sonarscanner'
+        SONARSCANNER     = 'sonarscanner' // Name of the SonarQube Scanner installation in Jenkins
         IMAGE_NAME       = 'nelvis1/cloudreality-image'
         IMAGE_TAG        = 'latest' 
         TASK_DEF_ARN     = 'arn:aws:ecs:us-east-1:997450571655:task-definition/jenkins-cicd-task'
