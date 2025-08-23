@@ -18,7 +18,6 @@ pipeline {
         ECS_SERVICE = 'jenkins-cicd-service'
     }
  
-
     stages {
         stage('Build'){
             steps {
@@ -36,7 +35,6 @@ pipeline {
             steps {
                 sh 'mvn test'
             }
-
         }
 
         stage('Checkstyle Analysis'){
@@ -52,7 +50,7 @@ pipeline {
             steps {
                withSonarQubeEnv("${SONARSERVER}") {
                    sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey="$jenkinscicdproject" \
-                   -Dsonar.projectName="$jenkinscicdproject" \ 
+                   -Dsonar.projectName="$jenkinscicdproject" \
                    -Dsonar.projectVersion=1.0 \
                    -Dsonar.organization="$jenkinscicd" \
                    -Dsonar.sources=src/ \
@@ -63,6 +61,7 @@ pipeline {
               }
             }
         }
+
         stage('OWASP Dependency Check') {
             steps {
                 sh '''
@@ -106,18 +105,18 @@ pipeline {
         } 
 
         stage('Trivy Scan') {
-                steps {
-                    script {
-                        sh 'trivy image --severity HIGH,CRITICAL --format table $IMAGE_NAME:$BUILD_NUMBER' // Scan for high/critical vulnerabilities
-                        // You can also output to a file:
-                         sh 'trivy image $IMAGE_NAME:$BUILD_NUMBER > trivy-report.txt'
-                    }
+            steps {
+                script {
+                    sh 'trivy image --severity HIGH,CRITICAL --format table $IMAGE_NAME:$BUILD_NUMBER'
+                    sh 'trivy image $IMAGE_NAME:$BUILD_NUMBER > trivy-report.txt'
                 }
-         } 
+            }
+        } 
+
         stage('Push to Dockerhub') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'DOCKER_LOGIN',  // ID from Jenkins credentials
+                    credentialsId: 'DOCKER_LOGIN',
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]){
@@ -128,14 +127,14 @@ pipeline {
                       docker logout                      
                     '''                   
                 }
-                
             }
         } 
-        stage('Remove Images')   {
+
+        stage('Remove Images') {
             steps {
                 script {
-                    sh 'docker rmi  $IMAGE_NAME:$BUILD_NUMBER'
-                    sh 'docker rmi  $IMAGE_NAME:$IMAGE_TAG'
+                    sh 'docker rmi $IMAGE_NAME:$BUILD_NUMBER'
+                    sh 'docker rmi $IMAGE_NAME:$IMAGE_TAG'
                 }
             }
         }  
@@ -190,9 +189,7 @@ pipeline {
                 body: """<p>Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' failed.</p>
                         <p>Check console output at <a href='${env.BUILD_URL}'>${env.BUILD_URL}</a></p>""",
                 mimeType: 'text/html'
-
             )
         }
     }
 }
-
