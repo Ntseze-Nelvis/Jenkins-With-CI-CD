@@ -7,7 +7,7 @@ pipeline {
 
     environment {        
         SONARSERVER      = 'sonarserver' //sonarserver
-        IMAGE_NAME       = 'nelvis1/cloudreality-image'
+        IMAGE_NAME       = 'nelvis1/cloudreality-image' //image name in dockerhub
         IMAGE_TAG        = 'latest' 
         TASK_DEF_ARN     = 'arn:aws:ecs:us-east-1:588738581081:task-definition/jenkins-task:1'
         SONAR_PROJECTKEY = 'jenkinscicdproject' 
